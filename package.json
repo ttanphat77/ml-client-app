@@ -11,13 +11,15 @@
   "scripts": {
     "build": "just-scripts build",
     "just": "just-scripts",
-    "start": "just-scripts start",
+    "start": "node server/server.js",
+    "local": "just-script start",
     "test": "just-scripts test",
     "change": "npx beachball change",
     "gen": "npx plop"
   },
   "dependencies": {
     "axios": "^0.20.0",
+    "express": "^4.17.1",
     "office-ui-fabric-react": "^7.0.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
