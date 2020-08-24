@@ -1,50 +1,60 @@
 import React from 'react';
-import { Stack, Text, Link, FontWeights } from 'office-ui-fabric-react';
-
-import logo from './fabric.png';
-
-const boldStyle = {
-  root: { fontWeight: FontWeights.semibold }
-};
+import './App.css';
+import {
+  Stack,
+  PrimaryButton,
+  Image,
+  IImageProps,
+  ImageFit,
+  Spinner
+} from 'office-ui-fabric-react';
+import DetectorService from './service/detectorService'
 
 export const App: React.FunctionComponent = () => {
+
+  let fileUpload: HTMLInputElement | null;
+  const detectorService = new DetectorService();
+  const imageProps: Partial<IImageProps> = {
+    imageFit: ImageFit.centerContain,
+    width: 'auto',
+    height: '55vh',
+  };
+
+
+  function _detectCats() {
+    setIsLoading(true);
+    setImage('');
+    var data = new FormData();
+    data.append('file', fileUpload!.files![0]);
+    detectorService.detectCats(data)
+      .then(rs => {
+        setImage(rs.data);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        setIsLoading(false);
+        alert(err)});
+  }
+
+  const [disabledButton, setDisabled] = React.useState(true);
+  const [image, setImage] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
   return (
-    <Stack
-      horizontalAlign="center"
-      verticalAlign="center"
-      verticalFill
-      styles={{
-        root: {
-          width: '960px',
-          margin: '0 auto',
-          textAlign: 'center',
-          color: '#605e5c'
-        }
-      }}
-      gap={15}
-    >
-      <img src={logo} alt="logo" />
-      <Text variant="xxLarge" styles={boldStyle}>
-        Welcome to Your UI Fabric App
-      </Text>
-      <Text variant="large">For a guide on how to customize this project, check out the UI Fabric documentation.</Text>
-      <Text variant="large" styles={boldStyle}>
-        Essential Links
-      </Text>
-      <Stack horizontal gap={15} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fabric">Docs</Link>
-        <Link href="https://stackoverflow.com/questions/tagged/office-ui-fabric">Stack Overflow</Link>
-        <Link href="https://github.com/officeDev/office-ui-fabric-react/">Github</Link>
-        <Link href="https://twitter.com/officeuifabric">Twitter</Link>
+    <div className="wrapper">
+      <Stack horizontalAlign="center">
+        <h1>Find the cats</h1>
+        <Stack style={{ width: '80vw' }} gap={25}>
+          <input type="file" accept="image/*" onChange={() => setDisabled(false)} ref={(ref) => fileUpload = ref} />
+          <PrimaryButton text="Cool :v" onClick={_detectCats} allowDisabledFocus disabled={disabledButton} />
+          {isLoading ?
+            <Spinner label="Wait, wait..." ariaLive="assertive" labelPosition="right" /> : ''
+          }
+          <Image {...imageProps} src={"data:image/png;base64," + image} className="result-img" />
+        </Stack>
       </Stack>
-      <Text variant="large" styles={boldStyle}>
-        Design System
-      </Text>
-      <Stack horizontal gap={15} horizontalAlign="center">
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/icons">Icons</Link>
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/typography">Typography</Link>
-        <Link href="https://developer.microsoft.com/en-us/fabric#/styles/themegenerator">Theme</Link>
-      </Stack>
-    </Stack>
+    </div>
   );
 };
+
+
